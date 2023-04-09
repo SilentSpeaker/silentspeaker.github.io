@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="本文整理在Cent OS上通过vsftpd快速搭建ftp服务！  1. yum安装vsftpd1yum -y install vsftpd  check 1systemctl start vsftpd.service  2 SELinux与防火墙设置SELinux对ftp的限制12getsebool -a | grep ftpsetsebool -P ftpd_full_access on  将">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在Cent OS上搭建ftp服务">
+<meta property="og:url" content="https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/index.html">
+<meta property="og:site_name" content="SHELLI">
+<meta property="og:description" content="本文整理在Cent OS上通过vsftpd快速搭建ftp服务！  1. yum安装vsftpd1yum -y install vsftpd  check 1systemctl start vsftpd.service  2 SELinux与防火墙设置SELinux对ftp的限制12getsebool -a | grep ftpsetsebool -P ftpd_full_access on  将">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-02-14T09:33:17.000Z">
+<meta property="article:modified_time" content="2023-04-09T11:45:39.602Z">
+<meta property="article:author" content="SHELLI">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="ftp">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>在Cent OS上搭建ftp服务</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+      <link rel="alternate" href="/atom.xml" title="SHELLI" type="application/atom+xml" />
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+    <!-- mermaid -->
+    
+        <script src='https://unpkg.com/mermaid@7.1.2/dist/mermaid.min.js'></script>
+        <script>
+          if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+          }
+        </script>
+    
+    <!-- pwa -->
+    
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2021/05/16/MySql%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD%E8%84%9A%E6%9C%AC/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&text=在Cent OS上搭建ftp服务"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&title=在Cent OS上搭建ftp服务"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&is_video=false&description=在Cent OS上搭建ftp服务"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=在Cent OS上搭建ftp服务&body=Check out this article: https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&title=在Cent OS上搭建ftp服务"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&title=在Cent OS上搭建ftp服务"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&title=在Cent OS上搭建ftp服务"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&title=在Cent OS上搭建ftp服务"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&name=在Cent OS上搭建ftp服务&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&t=在Cent OS上搭建ftp服务"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-yum%E5%AE%89%E8%A3%85vsftpd"><span class="toc-number">1.</span> <span class="toc-text">1. yum安装vsftpd</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-SELinux%E4%B8%8E%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-number">2.</span> <span class="toc-text">2 SELinux与防火墙</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AESELinux%E5%AF%B9ftp%E7%9A%84%E9%99%90%E5%88%B6"><span class="toc-number">2.1.</span> <span class="toc-text">设置SELinux对ftp的限制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%86ftp%E5%8A%A0%E5%85%A5%E9%98%B2%E7%81%AB%E5%A2%99%E7%99%BD%E5%90%8D%E5%8D%95"><span class="toc-number">2.2.</span> <span class="toc-text">将ftp加入防火墙白名单</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">3.</span> <span class="toc-text">3. 修改配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%88%9B%E5%BB%BA%E5%AE%BF%E4%B8%BB%E7%94%A8%E6%88%B7ftpuser"><span class="toc-number">4.</span> <span class="toc-text">4. 创建宿主用户ftpuser</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%94%9F%E6%88%90%E8%99%9A%E6%8B%9F%E7%94%A8%E6%88%B7%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6"><span class="toc-number">5.</span> <span class="toc-text">5. 生成虚拟用户数据文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E4%BD%8D%E6%95%B0"><span class="toc-number">5.0.1.</span> <span class="toc-text">查看系统位数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%96%E8%BE%91pam%E8%AE%A4%E8%AF%81%E6%96%87%E4%BB%B6"><span class="toc-number">5.0.2.</span> <span class="toc-text">编辑pam认证文件</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%88%9B%E5%BB%BA%E8%99%9A%E6%8B%9F%E7%94%A8%E6%88%B7%E9%85%8D%E7%BD%AE%E7%9B%AE%E5%BD%95"><span class="toc-number">6.</span> <span class="toc-text">6. 创建虚拟用户配置目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E9%87%8D%E5%90%AFVSFTP%E6%9C%8D%E5%8A%A1"><span class="toc-number">7.</span> <span class="toc-text">7. 重启VSFTP服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PS-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">8.</span> <span class="toc-text">PS 配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E7%94%A8%E6%88%B7%E7%9A%84%E8%84%9A%E6%9C%AC"><span class="toc-number">9.</span> <span class="toc-text">添加用户的脚本</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        在Cent OS上搭建ftp服务
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">SHELLI</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-02-14T09:33:17.000Z" itemprop="datePublished">2022-02-14</time>
+        
+        (Updated: <time datetime="2023-04-09T11:45:39.602Z" itemprop="dateModified">2023-04-09</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E8%84%9A%E6%9C%AC/">脚本</a> › <a class="category-link" href="/categories/%E8%84%9A%E6%9C%AC/Linux/">Linux</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Linux/" rel="tag">Linux</a>, <a class="tag-link-link" href="/tags/ftp/" rel="tag">ftp</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <blockquote>
+<p>本文整理在<code>Cent OS</code>上通过<code>vsftpd</code>快速搭建<code>ftp</code>服务！</p>
+</blockquote>
+<h2 id="1-yum安装vsftpd"><a href="#1-yum安装vsftpd" class="headerlink" title="1. yum安装vsftpd"></a>1. yum安装vsftpd</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install vsftpd</span><br></pre></td></tr></table></figure>
+
+<p><strong>check</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start vsftpd.service</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-SELinux与防火墙"><a href="#2-SELinux与防火墙" class="headerlink" title="2 SELinux与防火墙"></a>2 SELinux与防火墙</h2><h3 id="设置SELinux对ftp的限制"><a href="#设置SELinux对ftp的限制" class="headerlink" title="设置SELinux对ftp的限制"></a>设置SELinux对ftp的限制</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">getsebool -a | grep ftp</span><br><span class="line">setsebool -P ftpd_full_access on</span><br></pre></td></tr></table></figure>
+
+<h3 id="将ftp加入防火墙白名单"><a href="#将ftp加入防火墙白名单" class="headerlink" title="将ftp加入防火墙白名单"></a>将ftp加入防火墙白名单</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --permanent --zone=public --add-service=ftp</span><br><span class="line">firewall-cmd --reload</span><br><span class="line">firewall-cmd --list-all</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-修改配置文件"><a href="#3-修改配置文件" class="headerlink" title="3. 修改配置文件"></a>3. 修改配置文件</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /etc/vsftpd/</span><br><span class="line">vim vsftpd.conf</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-创建宿主用户ftpuser"><a href="#4-创建宿主用户ftpuser" class="headerlink" title="4. 创建宿主用户ftpuser"></a>4. 创建宿主用户ftpuser</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cd /home</span><br><span class="line">mkdir vsftpd</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建用户 ftpuser 指定 `/home/vsftpd` 目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-s /sbin/nologin ftpuser 表示不允许该用户通过命令行方式登录</span></span><br><span class="line">useradd -g root -M -d /home/vsftpd -s /sbin/nologin ftpuser</span><br><span class="line"></span><br><span class="line">passwd ftpuser</span><br><span class="line">chown -R ftpuser.root /home/vsftpd</span><br><span class="line"></span><br><span class="line">cd /etc/vsftpd/vuser_conf</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-生成虚拟用户数据文件"><a href="#5-生成虚拟用户数据文件" class="headerlink" title="5. 生成虚拟用户数据文件"></a>5. 生成虚拟用户数据文件</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vim vuser_passwd</span><br><span class="line">db_load -T -t hash -f /etc/vsftpd/vuser_passwd /etc/vsftpd/vuser_passwd.db</span><br><span class="line">chmod 600 /etc/vsftpd/vuser_passwd.db</span><br></pre></td></tr></table></figure>
+
+<h4 id="查看系统位数"><a href="#查看系统位数" class="headerlink" title="查看系统位数"></a>查看系统位数</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getconf LONG_BIT</span><br></pre></td></tr></table></figure>
+
+<h4 id="编辑pam认证文件"><a href="#编辑pam认证文件" class="headerlink" title="编辑pam认证文件"></a>编辑pam认证文件</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/pam.d/vsftpd</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">将其他都注释掉，添加下面两行;</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">vuser_passwd 是你生成的虚拟用户的db文件,这里不要加扩展名。</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">系统为32位：</span></span><br><span class="line">auth required pam_userdb.so db=/etc/vsftpd/vuser_passwd account</span><br><span class="line">required pam_userdb.so db=/etc/vsftpd/vuser_passwd</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">系统为64位：</span></span><br><span class="line">auth required /lib64/security/pam_userdb.so db=/etc/vsftpd/vuser_passwd</span><br><span class="line">account required /lib64/security/pam_userdb.so db=/etc/vsftpd/vuser_passwd</span><br><span class="line"></span><br><span class="line">mkdir /home/vsftpd/ftp-user1</span><br><span class="line">chown -R ftpuser.root /home/vsftpd/ftp-user1</span><br><span class="line">chmod 777 /home/vsftpd/ftp-user1</span><br><span class="line">mkdir /home/vsftpd/ftp-user2</span><br><span class="line">chown -R ftpuser.root /home/vsftpd/ftp-user2</span><br><span class="line">chmod 777 /home/vsftpd/ftp-user2</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-创建虚拟用户配置目录"><a href="#6-创建虚拟用户配置目录" class="headerlink" title="6. 创建虚拟用户配置目录"></a>6. 创建虚拟用户配置目录</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">cd /etc/vsftpd/vuser_conf</span><br><span class="line">CREATE_USER=ftp-user1</span><br><span class="line">echo &quot;local_root=/home/vsftpd/$&#123;CREATE_USER&#125;</span><br><span class="line">write_enable=YES</span><br><span class="line">anon_umask=022</span><br><span class="line">anon_world_readable_only=NO</span><br><span class="line">anon_upload_enable=YES</span><br><span class="line">anon_mkdir_write_enable=YES</span><br><span class="line">anon_other_write_enable=YES&quot; &gt;&gt; /etc/vsftpd/vuser_conf/$&#123;CREATE_USER&#125;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">写入虚拟用户名</span></span><br><span class="line">echo &quot;$&#123;CREATE_USER&#125;&quot; &gt;&gt; /etc/vsftpd/chroot_list</span><br></pre></td></tr></table></figure>
+
+<h2 id="7-重启VSFTP服务"><a href="#7-重启VSFTP服务" class="headerlink" title="7. 重启VSFTP服务"></a>7. 重启VSFTP服务</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart vsftpd.service</span><br></pre></td></tr></table></figure>
+
+<h2 id="PS-配置文件"><a href="#PS-配置文件" class="headerlink" title="PS 配置文件"></a>PS 配置文件</h2><p>贴出部分关键的配置文件</p>
+<figure class="highlight shell"><figcaption><span>vsftpd.conf</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">anonymous_enable=NO</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">允许ascii文件上传和下载</span></span><br><span class="line">ascii_upload_enable=YES</span><br><span class="line">ascii_download_enable=YES</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">将用户限制在为其配置的主目录</span></span><br><span class="line">chroot_local_user=YES</span><br><span class="line">chroot_list_enable=YES</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">允许写</span></span><br><span class="line">allow_writeable_chroot=YES</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">如果启用了限定用户在其主目录下需要添加这个配置。</span></span><br><span class="line">allow_writeable_chroot=YES</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">设置启用虚拟用户功能</span></span><br><span class="line">guest_enable=YES</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">制定宿主用户名(我们后续需要为我们的系统增加该用户)</span></span><br><span class="line">guest_username=ftpuser</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">制定虚拟用户配置文件放置文件夹(需要我们自己建立)</span></span><br><span class="line">user_config_dir=/etc/vsftpd/vuser_conf</span><br><span class="line">chroot_list_file=/etc/vsftpd/chroot_list</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><figcaption><span>vuser_passwd</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ftp-user1</span><br><span class="line">123456</span><br><span class="line">ftp-user2</span><br><span class="line">123456</span><br></pre></td></tr></table></figure>
+
+<h2 id="添加用户的脚本"><a href="#添加用户的脚本" class="headerlink" title="添加用户的脚本"></a>添加用户的脚本</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line">ORG_ID=$1</span><br><span class="line">PASSWORD=$2</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">chroot_list 所在</span></span><br><span class="line">CHROOT_LIST=/opt/zbbai/file_watch/chroot_list</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">虚拟用户配置文件放置文件夹</span></span><br><span class="line">user_config_dir=/opt/zbbai/file_watch/user_config_dir</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">宿主home目录</span></span><br><span class="line">HOME=/home/vsftpd</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">宿主用户名</span></span><br><span class="line">ftpuser=ftpuser</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ftp用户命名格式</span></span><br><span class="line">CREATE_USER=&quot;ftp-user$&#123;ORG_ID&#125;&quot;</span><br><span class="line"></span><br><span class="line">if [ ! $PASSWORD ]; then</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">默认密码</span></span><br><span class="line">    PASSWORD=123456</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">function create_ftp_user()&#123;</span><br><span class="line">    if [ -z &quot;`grep &quot;$&#123;CREATE_USER&#125;$&quot; $CHROOT_LIST`&quot; ]</span><br><span class="line">    then</span><br><span class="line">        echo &quot;$&#123;CREATE_USER&#125; 将被建立&quot;</span><br><span class="line">    else</span><br><span class="line">        echo &quot;$&#123;CREATE_USER&#125; 已存在&quot;</span><br><span class="line">        exit 1</span><br><span class="line">    fi</span><br><span class="line">    echo &quot;$&#123;CREATE_USER&#125;&quot; &gt;&gt; $CHROOT_LIST</span><br><span class="line">    echo &quot;local_root=$&#123;HOME&#125;/$&#123;CREATE_USER&#125;</span><br><span class="line">write_enable=YES</span><br><span class="line">anon_umask=022</span><br><span class="line">anon_world_readable_only=NO</span><br><span class="line">anon_upload_enable=YES</span><br><span class="line">anon_mkdir_write_enable=YES</span><br><span class="line">anon_other_write_enable=YES&quot; &gt;&gt; $&#123;user_config_dir&#125;/$&#123;CREATE_USER&#125;</span><br><span class="line">    echo &quot;$&#123;CREATE_USER&#125;&quot; &gt;&gt; $&#123;user_config_dir&#125;/vuser_passwd</span><br><span class="line">    echo &quot;$&#123;PASSWORD&#125;&quot; &gt;&gt; $&#123;user_config_dir&#125;/vuser_passwd</span><br><span class="line">    db_load -T -t hash -f $&#123;user_config_dir&#125;/vuser_passwd $&#123;user_config_dir&#125;/vuser_passwd.db</span><br><span class="line">    chmod 600 $&#123;user_config_dir&#125;/vuser_passwd.db</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function create_ftp_dir()&#123;</span><br><span class="line">    cd $HOME</span><br><span class="line">    mkdir $&#123;CREATE_USER&#125;</span><br><span class="line">    chown -R $ftpuser $HOME/$&#123;CREATE_USER&#125;/</span><br><span class="line">    chmod 777 $HOME/$&#123;CREATE_USER&#125;/</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function restart_ftp_server()&#123;</span><br><span class="line">    systemctl restart vsftpd.service</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">echo &quot;机构ID: $&#123;ORG_ID&#125;&quot;</span><br><span class="line">create_ftp_user</span><br><span class="line">echo &quot;用户: $&#123;CREATE_USER&#125;&quot;</span><br><span class="line">echo &quot;密码: $&#123;PASSWORD&#125;&quot;</span><br><span class="line">create_ftp_dir</span><br><span class="line">echo &quot;目录: $HOME/$&#123;CREATE_USER&#125;&quot;</span><br><span class="line">restart_ftp_server</span><br><span class="line">echo &quot;添加完成&quot;</span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+    <div class="blog-post-comments">
+        <div id="utterances_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-yum%E5%AE%89%E8%A3%85vsftpd"><span class="toc-number">1.</span> <span class="toc-text">1. yum安装vsftpd</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-SELinux%E4%B8%8E%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-number">2.</span> <span class="toc-text">2 SELinux与防火墙</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AESELinux%E5%AF%B9ftp%E7%9A%84%E9%99%90%E5%88%B6"><span class="toc-number">2.1.</span> <span class="toc-text">设置SELinux对ftp的限制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%86ftp%E5%8A%A0%E5%85%A5%E9%98%B2%E7%81%AB%E5%A2%99%E7%99%BD%E5%90%8D%E5%8D%95"><span class="toc-number">2.2.</span> <span class="toc-text">将ftp加入防火墙白名单</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">3.</span> <span class="toc-text">3. 修改配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%88%9B%E5%BB%BA%E5%AE%BF%E4%B8%BB%E7%94%A8%E6%88%B7ftpuser"><span class="toc-number">4.</span> <span class="toc-text">4. 创建宿主用户ftpuser</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%94%9F%E6%88%90%E8%99%9A%E6%8B%9F%E7%94%A8%E6%88%B7%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6"><span class="toc-number">5.</span> <span class="toc-text">5. 生成虚拟用户数据文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E4%BD%8D%E6%95%B0"><span class="toc-number">5.0.1.</span> <span class="toc-text">查看系统位数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%96%E8%BE%91pam%E8%AE%A4%E8%AF%81%E6%96%87%E4%BB%B6"><span class="toc-number">5.0.2.</span> <span class="toc-text">编辑pam认证文件</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%88%9B%E5%BB%BA%E8%99%9A%E6%8B%9F%E7%94%A8%E6%88%B7%E9%85%8D%E7%BD%AE%E7%9B%AE%E5%BD%95"><span class="toc-number">6.</span> <span class="toc-text">6. 创建虚拟用户配置目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E9%87%8D%E5%90%AFVSFTP%E6%9C%8D%E5%8A%A1"><span class="toc-number">7.</span> <span class="toc-text">7. 重启VSFTP服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PS-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">8.</span> <span class="toc-text">PS 配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E7%94%A8%E6%88%B7%E7%9A%84%E8%84%9A%E6%9C%AC"><span class="toc-number">9.</span> <span class="toc-text">添加用户的脚本</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&text=在Cent OS上搭建ftp服务"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&title=在Cent OS上搭建ftp服务"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&is_video=false&description=在Cent OS上搭建ftp服务"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=在Cent OS上搭建ftp服务&body=Check out this article: https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&title=在Cent OS上搭建ftp服务"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&title=在Cent OS上搭建ftp服务"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&title=在Cent OS上搭建ftp服务"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&title=在Cent OS上搭建ftp服务"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&name=在Cent OS上搭建ftp服务&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://shelli-site.gitee.io/2022/02/14/ftp%E8%84%9A%E6%9C%AC/&t=在Cent OS上搭建ftp服务"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2019-2023
+    
+          <a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/" one-link-mark="yes">浙ICP备20013512号</a>
+    
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?5147205aa050e2fcb00ac85bf7c693f6";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+    <script type="text/javascript">
+      var utterances_repo = 'shelli-site/shelli-site.github.io';
+      var utterances_issue_term = 'blog';
+      var utterances_label = '评论';
+      var utterances_theme = 'github-dark';
+
+      (function(){
+          var script = document.createElement('script');
+
+          script.src = 'https://utteranc.es/client.js';
+          script.setAttribute('repo', utterances_repo);
+          script.setAttribute('issue-term', 'pathname');
+          script.setAttribute('label', utterances_label);
+          script.setAttribute('theme', utterances_theme);
+          script.setAttribute('crossorigin', 'anonymous');
+          script.async = true;
+          (document.getElementById('utterances_thread')).appendChild(script);
+      }());
+  </script>
+
+<!-- typed -->
+
+    <script src="https://cdn.bootcss.com/typed.js/2.0.5/typed.js" crossorigin="anonymous"></script>
+
+
+</body>
+</html>
